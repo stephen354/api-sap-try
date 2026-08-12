@@ -1,0 +1,40 @@
+# Disable Directory Listing
+Options -Indexes
+
+# Enable Rewrite Engine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Pass Authorization Header to PHP (Crucial for Basic Auth & Bearer Token in Apache)
+    RewriteCond %{HTTP:Authorization} ^(.*)
+    RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+</IfModule>
+
+# Block access to hidden files and directories (like .git, .gitignore, .env, .htaccess)
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+# Fallback protection for .git directory
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^\.">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Extra security rule specifically targeting .git folder
+RedirectMatch 404 /\.git
+
+# Protect internal log file from direct HTTP access
+<Files "logs.json">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</Files>
