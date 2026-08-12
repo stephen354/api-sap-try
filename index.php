@@ -881,8 +881,7 @@
             <div style="margin-top: 24px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); padding: 16px; border-radius: var(--radius-md);">
                 <h4 style="color: var(--accent-cyan); font-size: 14px; margin-bottom: 8px;">💡 Mode Bypass Token Auth untuk Testing ABAP:</h4>
                 <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
-                    Kamu bisa mematikan validasi token dengan mengklik tombol toggle <strong>"Token Auth: WAJIB"</strong> di pojok kanan atas menjadi <strong>"NONAKTIF (BYPASS)"</strong>.
-                    Dengan begitu, kamu bisa langsung mengetes apakah data <code>REQ_JSON</code> dari SAP sudah terkirim dan diterima dengan benar di <code>api.php</code> tanpa terhalang error token/credentials!
+                    Kamu bisa mematikan validasi token dengan mengklik tombol toggle <strong>"Token Auth: WAJIB"</strong> di pojok kanan atas menjadi <strong>"NONAKTIF (BYPASS)"</strong>, atau menambahkan parameter <code>?bypass=1</code> pada URL di SAP (misal: <code>http://localhost/.../api.php?bypass=1</code>).
                 </p>
             </div>
         </div>
@@ -910,7 +909,7 @@
 
     async function loadConfig() {
         try {
-            const res = await fetch('config_api.php');
+            const res = await fetch('config_api.php?t=' + Date.now(), { cache: 'no-store' });
             const config = await res.json();
             isTokenAuthRequired = config.require_token;
             updateToggleUI();
@@ -922,7 +921,7 @@
     async function toggleTokenAuth() {
         try {
             const newStatus = !isTokenAuthRequired;
-            const res = await fetch('config_api.php?action=toggle&status=' + newStatus, { method: 'POST' });
+            const res = await fetch('config_api.php?action=toggle&status=' + newStatus + '&t=' + Date.now(), { method: 'POST', cache: 'no-store' });
             const config = await res.json();
             isTokenAuthRequired = config.require_token;
             updateToggleUI();
@@ -1108,7 +1107,7 @@
 
     async function fetchLogs() {
         try {
-            const res = await fetch('logs_api.php');
+            const res = await fetch('logs_api.php?t=' + Date.now(), { cache: 'no-store' });
             const logs = await res.json();
             renderLogs(logs);
         } catch (e) {
@@ -1118,9 +1117,17 @@
 
     async function clearLogs() {
         if (confirm('Hapus semua catatan log request?')) {
-            await fetch('logs_api.php?action=clear');
-            fetchLogs();
-            showToast('Log berhasil dibersihkan.');
+            try {
+                const res = await fetch('logs_api.php?action=clear&t=' + Date.now(), {
+                    method: 'POST',
+                    cache: 'no-store'
+                });
+                const data = await res.json();
+                renderLogs([]);
+                showToast('Log berhasil dibersihkan!');
+            } catch (err) {
+                alert('Gagal menghapus log: ' + err.message);
+            }
         }
     }
 
