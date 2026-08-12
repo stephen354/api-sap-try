@@ -260,12 +260,6 @@
             resize: vertical;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
         /* Buttons */
         .btn {
             background: var(--accent-blue);
@@ -372,7 +366,7 @@
             background: #060911;
             padding: 12px;
             border-radius: var(--radius-sm);
-            max-height: 220px;
+            max-height: 260px;
             overflow-y: auto;
         }
 
@@ -385,7 +379,7 @@
         }
 
         .param-table th, .param-table td {
-            padding: 12px 14px;
+            padding: 10px 14px;
             text-align: left;
             border-bottom: 1px solid var(--border);
         }
@@ -400,6 +394,7 @@
             font-family: var(--font-mono);
             font-weight: 600;
             color: var(--accent-cyan);
+            white-space: nowrap;
         }
 
         .param-val {
@@ -566,7 +561,7 @@
     <div class="tabs-nav">
         <button class="tab-btn active" onclick="switchTab('tester')">⚡ API Tester</button>
         <button class="tab-btn" onclick="switchTab('inspector')">🛰️ Live Request Inspector (SAP Monitor)</button>
-        <button class="tab-btn" onclick="switchTab('abap')">📋 SAP ABAP Code & Parameter Guide</button>
+        <button class="tab-btn" onclick="switchTab('abap')">📋 SAP GUI SE37 & ABAP Guide</button>
     </div>
 
     <!-- TAB 1: API TESTER -->
@@ -677,26 +672,156 @@
 
     <!-- TAB 3: ABAP CODE & PARAMETER GUIDE -->
     <div id="tab-abap" class="tab-content">
+
+        <!-- LOKASI UBAH CLIENT ID & SECRET -->
+        <div class="card" style="margin-bottom: 24px; border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
+            <div class="card-header">
+                <div class="card-title">
+                    <span style="color: var(--accent-indigo);">🔑 LOKASI MERUBAH CLIENT ID & SECRET DI PHP</span>
+                </div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 10px;">
+                Jika kamu ingin mengganti nilai <strong>TOKEN_CLIENTID</strong> atau <strong>TOKEN_SECRET</strong>, buka file <strong>token.php</strong> pada baris 19-20:
+            </p>
+            <pre style="background: #060911; color: #a5f3fc; border: 1px solid var(--border);">$valid_id = "sap_client";       // Isi sesuai TOKEN_CLIENTID di SAP GUI
+$valid_secret = "sap_luar";     // Isi sesuai TOKEN_SECRET di SAP GUI</pre>
+        </div>
+
+        <!-- SE37 PARAMETER TABLE -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>🖥️ Pengisian Import Parameters di SE37 SAP GUI</span>
+                </div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                Saat kamu menjalankan <strong>Test/Execute (F8)</strong> pada Function Module di SAP GUI, isikan parameter seperti berikut:
+            </p>
+
+            <h4 style="color: var(--accent-cyan); font-size: 14px; margin-bottom: 10px;">Opsi 1: Testing DENGAN Token (api_with_header.php)</h4>
+            <table class="param-table">
+                <thead>
+                    <tr>
+                        <th>Import Parameter SAP</th>
+                        <th>Value yang Diisi di SE37</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="param-name">TOKEN_ONLY</td>
+                        <td><div class="param-val"><span>(Kosongkan / Jangan Centang)</span></div></td>
+                        <td>Biarkan kosong</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">TOKEN_URL</td>
+                        <td>
+                            <div class="param-val">
+                                <span id="se37_token_url"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>token.php</span>
+                                <button class="copy-btn" onclick="copyText('se37_token_url')">Copy</button>
+                            </div>
+                        </td>
+                        <td>URL Token Generator</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">TOKEN_CLIENTID</td>
+                        <td>
+                            <div class="param-val">
+                                <span id="se37_client_id">sap_client</span>
+                                <button class="copy-btn" onclick="copyText('se37_client_id')">Copy</button>
+                            </div>
+                        </td>
+                        <td>Must match $valid_id in PHP</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">TOKEN_SECRET</td>
+                        <td>
+                            <div class="param-val">
+                                <span id="se37_secret">sap_luar</span>
+                                <button class="copy-btn" onclick="copyText('se37_secret')">Copy</button>
+                            </div>
+                        </td>
+                        <td>Must match $valid_secret in PHP</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">URL</td>
+                        <td>
+                            <div class="param-val">
+                                <span id="se37_url_with_header"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_with_header.php</span>
+                                <button class="copy-btn" onclick="copyText('se37_url_with_header')">Copy</button>
+                            </div>
+                        </td>
+                        <td>URL Utama API Wajib Header Token</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">REQ_JSON</td>
+                        <td>
+                            <div class="param-val">
+                                <span id="se37_req_json">{"nama": "Budi", "pesan": "Testing dengan Token"}</span>
+                                <button class="copy-btn" onclick="copyText('se37_req_json')">Copy</button>
+                            </div>
+                        </td>
+                        <td>Payload JSON Transaksi</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4 style="color: var(--accent-emerald); font-size: 14px; margin-bottom: 10px; margin-top: 20px;">Opsi 2: Testing TANPA Token (api_no_header.php)</h4>
+            <table class="param-table">
+                <thead>
+                    <tr>
+                        <th>Import Parameter SAP</th>
+                        <th>Value yang Diisi di SE37</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="param-name">TOKEN_URL</td>
+                        <td><div class="param-val"><span>(Kosongkan)</span></div></td>
+                        <td>Tidak butuh Token</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">TOKEN_CLIENTID</td>
+                        <td><div class="param-val"><span>(Kosongkan)</span></div></td>
+                        <td>Tidak butuh Auth</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">TOKEN_SECRET</td>
+                        <td><div class="param-val"><span>(Kosongkan)</span></div></td>
+                        <td>Tidak butuh Auth</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">URL</td>
+                        <td>
+                            <div class="param-val">
+                                <span id="se37_url_no_header"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_no_header.php</span>
+                                <button class="copy-btn" onclick="copyText('se37_url_no_header')">Copy</button>
+                            </div>
+                        </td>
+                        <td>URL API Tanpa Token</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name">REQ_JSON</td>
+                        <td>
+                            <div class="param-val">
+                                <span id="se37_req_json_no">{"nama": "Budi", "pesan": "Testing tanpa token"}</span>
+                                <button class="copy-btn" onclick="copyText('se37_req_json_no')">Copy</button>
+                            </div>
+                        </td>
+                        <td>Payload JSON Transaksi</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ABAP CODE SNIPPETS -->
         <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
                 <div class="card-title">
                     <span style="color: var(--accent-emerald);">🟢 VERSI 1: Kodingan ABAP TANPA Header Token (`api_no_header.php`)</span>
                 </div>
             </div>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-                Gunakan URL <code>api_no_header.php</code> untuk mengetes apakah koneksi HTTP dari SAP dan payload JSON bisa diterima PHP tanpa perlu otentikasi token sama sekali:
-            </p>
-            <table class="param-table">
-                <tr>
-                    <td class="param-name">URL</td>
-                    <td>
-                        <div class="param-val">
-                            <span id="abap_url_no_header"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_no_header.php</span>
-                            <button class="copy-btn" onclick="copyText('abap_url_no_header')">Copy</button>
-                        </div>
-                    </td>
-                </tr>
-            </table>
             <pre style="background: #060911; color: #a5f3fc; border: 1px solid var(--border);">
 " ====================================================
 " KODINGAN ABAP UNTUK VERSI TANPA TOKEN (Super Simpel)
@@ -726,29 +851,6 @@ lv_response = lo_http_client->response->get_cdata( ).
                     <span style="color: var(--accent-cyan);">🔒 VERSI 2: Kodingan ABAP DENGAN Header Token (`api_with_header.php`)</span>
                 </div>
             </div>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-                Gunakan URL <code>token.php</code> untuk ambil token, lalu kirimkan token tersebut ke <code>api_with_header.php</code> melalui header <code>Authorization: Bearer token_rahasia_12345</code>:
-            </p>
-            <table class="param-table">
-                <tr>
-                    <td class="param-name">TOKEN_URL</td>
-                    <td>
-                        <div class="param-val">
-                            <span id="abap_token_url"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>token.php</span>
-                            <button class="copy-btn" onclick="copyText('abap_token_url')">Copy</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="param-name">URL (Utama)</td>
-                    <td>
-                        <div class="param-val">
-                            <span id="abap_url_with_header"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_with_header.php</span>
-                            <button class="copy-btn" onclick="copyText('abap_url_with_header')">Copy</button>
-                        </div>
-                    </td>
-                </tr>
-            </table>
             <pre style="background: #060911; color: #a5f3fc; border: 1px solid var(--border);">
 " ====================================================
 " KODINGAN ABAP UNTUK VERSI DENGAN HEADER TOKEN
