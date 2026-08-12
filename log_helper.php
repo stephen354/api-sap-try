@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/config_api.php';
+
 function getallheaders_custom() {
     if (function_exists('getallheaders')) {
         $headers = getallheaders();
@@ -30,6 +32,7 @@ function add_log($endpoint, $method, $status, $input, $output) {
         "endpoint" => $endpoint,
         "method" => $method,
         "status" => $status,
+        "token_required" => is_token_required(),
         "user_agent" => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Unknown',
         "remote_ip" => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'Unknown',
         "input" => $input,

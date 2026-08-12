@@ -97,6 +97,13 @@
             color: var(--text-secondary);
         }
 
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
         .server-badge {
             background: rgba(59, 130, 246, 0.1);
             border: 1px solid rgba(59, 130, 246, 0.2);
@@ -108,6 +115,75 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .token-toggle-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            border: 1px solid transparent;
+        }
+
+        .token-toggle-card.enabled {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--accent-emerald);
+        }
+
+        .token-toggle-card.disabled {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--accent-amber);
+        }
+
+        /* Toggle switch component */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 18px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--accent-amber);
+            transition: .3s;
+            border-radius: 999px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-emerald);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
         }
 
         .status-dot {
@@ -512,6 +588,7 @@
             display: flex;
             gap: 16px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
 
         .log-details {
@@ -569,9 +646,20 @@
                 <p>Uji Coba Function Module ABAP, Token Authentication & Payload JSON</p>
             </div>
         </div>
-        <div class="server-badge">
-            <span class="status-dot"></span>
-            <span id="server-url">Laragon Server Active</span>
+        <div class="header-controls">
+            <!-- Token Auth Toggle Switch -->
+            <div id="token-toggle-btn" class="token-toggle-card enabled" onclick="toggleTokenAuth()">
+                <label class="switch">
+                    <input type="checkbox" id="token-auth-checkbox" checked onclick="event.stopPropagation(); toggleTokenAuth();">
+                    <span class="slider"></span>
+                </label>
+                <span id="token-toggle-label">Token Auth: WAJIB (AKTIF)</span>
+            </div>
+
+            <div class="server-badge">
+                <span class="status-dot"></span>
+                <span id="server-url">Laragon Server Active</span>
+            </div>
         </div>
     </header>
 
@@ -791,12 +879,11 @@
             </table>
 
             <div style="margin-top: 24px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); padding: 16px; border-radius: var(--radius-md);">
-                <h4 style="color: var(--accent-cyan); font-size: 14px; margin-bottom: 8px;">💡 Tips Debugging ABAP:</h4>
-                <ul style="font-size: 13px; color: var(--text-secondary); margin-left: 20px; line-height: 1.8;">
-                    <li>Setelah klik F8 di SAP, buka tab <strong>🛰️ Live Request Inspector</strong> untuk melihat apakah SAP benar-benar mengirimkan request ke local PHP server kamu.</li>
-                    <li>Inspector akan menampilkan header otentikasi <code>Basic ...</code> dan <code>Authorization: Bearer ...</code> yang dikirim oleh ABAP.</li>
-                    <li>Nilai <strong>RES_JSON</strong> di SAP akan berisi data balasan dari <code>api.php</code> dengan HTTP Code <strong>201 Created</strong>.</li>
-                </ul>
+                <h4 style="color: var(--accent-cyan); font-size: 14px; margin-bottom: 8px;">💡 Mode Bypass Token Auth untuk Testing ABAP:</h4>
+                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                    Kamu bisa mematikan validasi token dengan mengklik tombol toggle <strong>"Token Auth: WAJIB"</strong> di pojok kanan atas menjadi <strong>"NONAKTIF (BYPASS)"</strong>.
+                    Dengan begitu, kamu bisa langsung mengetes apakah data <code>REQ_JSON</code> dari SAP sudah terkirim dan diterima dengan benar di <code>api.php</code> tanpa terhalang error token/credentials!
+                </p>
             </div>
         </div>
     </div>
@@ -815,6 +902,49 @@
 
         if (tabId === 'inspector') {
             fetchLogs();
+        }
+    }
+
+    // Token Auth Toggle Logic
+    let isTokenAuthRequired = true;
+
+    async function loadConfig() {
+        try {
+            const res = await fetch('config_api.php');
+            const config = await res.json();
+            isTokenAuthRequired = config.require_token;
+            updateToggleUI();
+        } catch (e) {
+            console.error('Gagal membaca config token:', e);
+        }
+    }
+
+    async function toggleTokenAuth() {
+        try {
+            const newStatus = !isTokenAuthRequired;
+            const res = await fetch('config_api.php?action=toggle&status=' + newStatus, { method: 'POST' });
+            const config = await res.json();
+            isTokenAuthRequired = config.require_token;
+            updateToggleUI();
+            showToast(isTokenAuthRequired ? 'Mode Token Auth: WAJIB (AKTIF)' : 'Mode Token Auth: NONAKTIF / BYPASS!');
+        } catch (e) {
+            alert('Gagal mengubah mode token: ' + e.message);
+        }
+    }
+
+    function updateToggleUI() {
+        const toggleCard = document.getElementById('token-toggle-btn');
+        const checkbox = document.getElementById('token-auth-checkbox');
+        const label = document.getElementById('token-toggle-label');
+
+        checkbox.checked = isTokenAuthRequired;
+
+        if (isTokenAuthRequired) {
+            toggleCard.className = 'token-toggle-card enabled';
+            label.innerText = 'Token Auth: WAJIB (AKTIF)';
+        } else {
+            toggleCard.className = 'token-toggle-card disabled';
+            label.innerText = 'Token Auth: NONAKTIF (BYPASS)';
         }
     }
 
@@ -922,12 +1052,16 @@
         const startTime = performance.now();
 
         try {
+            const headersObj = {
+                'Content-Type': 'application/json'
+            };
+            if (bearerToken.trim() !== '') {
+                headersObj['Authorization'] = bearerToken;
+            }
+
             const res = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Authorization': bearerToken,
-                    'Content-Type': 'application/json'
-                },
+                headers: headersObj,
                 body: jsonText
             });
 
@@ -999,6 +1133,10 @@
 
         container.innerHTML = logs.map(item => {
             const statusClass = `s${item.status}`;
+            const tokenBadge = item.token_required 
+                ? `<span style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(16, 185, 129, 0.15); color:var(--accent-emerald);">Token: Wajib</span>`
+                : `<span style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(245, 158, 11, 0.15); color:var(--accent-amber);">Token: Bypass</span>`;
+
             return `
                 <div class="log-item">
                     <div class="log-header">
@@ -1006,6 +1144,7 @@
                             <span class="method-tag">${item.method}</span>
                             <span>${item.endpoint}</span>
                             <span class="status-badge ${statusClass}">HTTP ${item.status}</span>
+                            ${tokenBadge}
                         </div>
                         <span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">${item.time}</span>
                     </div>
@@ -1031,6 +1170,7 @@
     }
 
     // Init
+    loadConfig();
     startLogPolling();
 </script>
 
