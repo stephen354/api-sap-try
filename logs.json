@@ -1,1 +1,86 @@
-[]
+[
+    {
+        "id": "6a7c230b6975c",
+        "time": "2026-08-12 07:38:51",
+        "endpoint": "API_URL (api.php)",
+        "method": "POST",
+        "status": 201,
+        "token_required": false,
+        "user_agent": "Unknown",
+        "remote_ip": "Unknown",
+        "input": {
+            "auth_header": "(Tanpa Token \/ Bypass)",
+            "req_json": null,
+            "req_raw": "",
+            "headers": []
+        },
+        "output": {
+            "status": "Sukses",
+            "pesan": "Mantap bro, data JSON berhasil diterima di PHP! (Token Auth: BYPASS \/ NONAKTIF)",
+            "token_mode": "NONAKTIF (Bypass Mode)",
+            "data_kamu": ""
+        }
+    },
+    {
+        "id": "6a7c23015c4b8",
+        "time": "2026-08-12 07:38:41",
+        "endpoint": "API_URL (api.php)",
+        "method": "POST",
+        "status": 201,
+        "token_required": false,
+        "user_agent": "Unknown",
+        "remote_ip": "Unknown",
+        "input": {
+            "auth_header": "(Tanpa Token \/ Bypass)",
+            "req_json": null,
+            "req_raw": "",
+            "headers": []
+        },
+        "output": {
+            "status": "Sukses",
+            "pesan": "Mantap bro, data JSON berhasil diterima di PHP! (Token Auth: BYPASS \/ NONAKTIF)",
+            "token_mode": "NONAKTIF (Bypass Mode)",
+            "data_kamu": ""
+        }
+    },
+    {
+        "id": "6a7c22f9bf895",
+        "time": "2026-08-12 07:38:33",
+        "endpoint": "API_URL (api.php)",
+        "method": "POST",
+        "status": 401,
+        "token_required": true,
+        "user_agent": "Unknown",
+        "remote_ip": "Unknown",
+        "input": {
+            "auth_header": "",
+            "req_raw": "",
+            "headers": []
+        },
+        "output": {
+            "status": "Gagal",
+            "pesan": "Akses Ditolak, Token tidak valid atau tidak dikirim!",
+            "token_mode": "AKTIF (Wajib Header 'Authorization: Bearer token_rahasia_12345')",
+            "tips": "Kamu bisa matikan Token Auth di Web UI, atau panggil URL dengan parameter api.php?bypass=1"
+        }
+    },
+    {
+        "id": "6a7c22e535f75",
+        "time": "2026-08-12 07:38:13",
+        "endpoint": "API_URL (api.php)",
+        "method": null,
+        "status": 401,
+        "token_required": true,
+        "user_agent": "Unknown",
+        "remote_ip": "Unknown",
+        "input": {
+            "auth_header": "",
+            "req_raw": "",
+            "headers": []
+        },
+        "output": {
+            "pesan": "Akses Ditolak, Token tidak valid!",
+            "token_mode": "AKTIF (Wajib Token Valid)"
+        }
+    }
+]

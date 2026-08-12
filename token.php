@@ -4,7 +4,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
@@ -13,7 +13,8 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/log_helper.php';
 
-$token_required = is_token_required();
+$url_bypass = isset($_GET['bypass']) || isset($_GET['no_token']) || isset($_GET['bypass_token']);
+$token_required = is_token_required() && !$url_bypass;
 
 // 1. Tangkap otentikasi Basic Auth (dikirim dari SET_AUTHORIZATION di ABAP)
 $client_id = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
@@ -65,7 +66,7 @@ $headers_info = getallheaders_custom();
 if ($token_required && ($client_id !== $valid_id || $client_secret !== $valid_secret)) {
     http_response_code(401);
     $response = ["pesan" => "Gagal, Client ID atau Secret salah!", "token_mode" => "AKTIF (Wajib Auth)"];
-    add_log("TOKEN_URL (token.php)", $_SERVER['REQUEST_METHOD'], 401, [
+    add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 401, [
         "client_id" => $client_id,
         "grant_type" => $grant_type,
         "headers" => $headers_info
@@ -78,7 +79,7 @@ if ($token_required && ($client_id !== $valid_id || $client_secret !== $valid_se
 if ($token_required && $grant_type !== 'client_credentials') {
     http_response_code(400);
     $response = ["pesan" => "Gagal, grant_type salah!", "token_mode" => "AKTIF (Wajib Auth)"];
-    add_log("TOKEN_URL (token.php)", $_SERVER['REQUEST_METHOD'], 400, [
+    add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 400, [
         "client_id" => $client_id,
         "grant_type" => $grant_type,
         "headers" => $headers_info
@@ -96,7 +97,7 @@ $response = [
 ];
 
 http_response_code(200);
-add_log("TOKEN_URL (token.php)", $_SERVER['REQUEST_METHOD'], 200, [
+add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 200, [
     "client_id" => $client_id ?: "(Bypass)",
     "grant_type" => $grant_type ?: "(Bypass)",
     "headers" => $headers_info
