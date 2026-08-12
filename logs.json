@@ -1,1 +1,26 @@
-[]
+[
+    {
+        "id": "6a7c23ad3e528",
+        "time": "2026-08-12 07:41:33",
+        "endpoint": "API_URL (api.php)",
+        "method": "POST",
+        "status": 201,
+        "token_required": false,
+        "user_agent": "SAP HTTP Client\/1.0",
+        "remote_ip": "127.0.0.1",
+        "input": {
+            "auth_header": "(Tanpa Token \/ Bypass)",
+            "req_json": null,
+            "req_raw": "",
+            "headers": {
+                "User-Agent": "SAP HTTP Client\/1.0"
+            }
+        },
+        "output": {
+            "status": "Sukses",
+            "pesan": "Mantap bro, data JSON berhasil diterima di PHP! (Token Auth: BYPASS \/ NONAKTIF)",
+            "token_mode": "NONAKTIF (Bypass Mode)",
+            "data_kamu": ""
+        }
+    }
+]

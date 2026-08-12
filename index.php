@@ -751,9 +751,14 @@
 }</textarea>
                 </div>
 
-                <button class="btn btn-emerald btn-block" onclick="sendApiRequest()">
-                    🚀 Kirim REQ_JSON ke API (api.php)
-                </button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn btn-emerald btn-block" onclick="sendApiRequest(true)">
+                        🚀 Kirim dengan Token
+                    </button>
+                    <button class="btn btn-secondary btn-block" onclick="sendApiRequest(false)">
+                        🚫 Kirim TANPA Token
+                    </button>
+                </div>
 
                 <div class="response-box">
                     <div class="response-header">
@@ -1027,7 +1032,7 @@
     }
 
     // Step 2: Send Main API Request
-    async function sendApiRequest() {
+    async function sendApiRequest(withToken = true) {
         const url = document.getElementById('api_url').value;
         const bearerToken = document.getElementById('bearer_token').value;
         const jsonText = document.getElementById('req_json').value;
@@ -1054,7 +1059,7 @@
             const headersObj = {
                 'Content-Type': 'application/json'
             };
-            if (bearerToken.trim() !== '') {
+            if (withToken && bearerToken.trim() !== '') {
                 headersObj['Authorization'] = bearerToken;
             }
 
@@ -1074,8 +1079,9 @@
             statusEl.className = `status-badge s${res.status}`;
 
             if (res.ok) {
-                showToast('REQ_JSON Berhasil Diterima oleh api.php!');
+                showToast(withToken ? 'REQ_JSON Berhasil Diterima oleh api.php!' : 'REQ_JSON Dikirim TANPA Token!');
             }
+            fetchLogs();
         } catch (err) {
             const duration = Math.round(performance.now() - startTime);
             timeEl.innerText = duration + ' ms';

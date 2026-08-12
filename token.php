@@ -47,8 +47,10 @@ $valid_secret = "sap_luar";
 // 2. Tangkap grant_type (dikirim dari SET_FORM_FIELD di ABAP)
 $grant_type = isset($_POST['grant_type']) ? $_POST['grant_type'] : '';
 
+$parsed = parse_request_input();
+
 if (empty($grant_type)) {
-    $raw_input = file_get_contents('php://input');
+    $raw_input = $parsed['raw_body'];
     parse_str($raw_input, $post_data);
     if (isset($post_data['grant_type'])) {
         $grant_type = $post_data['grant_type'];
@@ -62,15 +64,18 @@ if (empty($grant_type)) {
 
 $headers_info = getallheaders_custom();
 
+$input_log_data = [
+    "client_id" => !empty($client_id) ? $client_id : "(Tidak Ada Basic Auth)",
+    "grant_type" => !empty($grant_type) ? $grant_type : "(Kosong)",
+    "payload" => $parsed['payload'],
+    "headers" => $headers_info
+];
+
 // Cek kecocokan Auth (Jika Token Auth AKTIF)
 if ($token_required && ($client_id !== $valid_id || $client_secret !== $valid_secret)) {
     http_response_code(401);
     $response = ["pesan" => "Gagal, Client ID atau Secret salah!", "token_mode" => "AKTIF (Wajib Auth)"];
-    add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 401, [
-        "client_id" => $client_id,
-        "grant_type" => $grant_type,
-        "headers" => $headers_info
-    ], $response);
+    add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 401, $input_log_data, $response);
     echo json_encode($response);
     exit;
 }
@@ -79,11 +84,7 @@ if ($token_required && ($client_id !== $valid_id || $client_secret !== $valid_se
 if ($token_required && $grant_type !== 'client_credentials') {
     http_response_code(400);
     $response = ["pesan" => "Gagal, grant_type salah!", "token_mode" => "AKTIF (Wajib Auth)"];
-    add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 400, [
-        "client_id" => $client_id,
-        "grant_type" => $grant_type,
-        "headers" => $headers_info
-    ], $response);
+    add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 400, $input_log_data, $response);
     echo json_encode($response);
     exit;
 }
@@ -97,11 +98,7 @@ $response = [
 ];
 
 http_response_code(200);
-add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 200, [
-    "client_id" => $client_id ?: "(Bypass)",
-    "grant_type" => $grant_type ?: "(Bypass)",
-    "headers" => $headers_info
-], $response);
+add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 200, $input_log_data, $response);
 
 echo json_encode($response);
 ?>

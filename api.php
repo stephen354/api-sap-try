@@ -29,9 +29,19 @@ if (empty($auth_header) && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
     $auth_header = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
 }
 
-// 3. Ambil kiriman REQ_JSON dari ABAP
-$req_json = file_get_contents('php://input');
-$data_dari_sap = json_decode($req_json, true);
+// 3. Tangkap dan parse data input dari ABAP / Client
+$parsed = parse_request_input();
+$req_json = $parsed['raw_body'];
+$data_dari_sap = $parsed['payload'];
+
+$input_log_data = [
+    "auth_header" => !empty($auth_header) ? $auth_header : "(Tidak dikirim / Empty Auth Header)",
+    "token_bypass" => !$token_required,
+    "payload_json" => $data_dari_sap,
+    "raw_body" => $req_json,
+    "headers" => $headers,
+    "query_params" => $_GET
+];
 
 // 2. Cek apakah Token yang dibawa sama dengan Token yang kita buat (Jika Token Auth WAJIB)
 if ($token_required && $auth_header !== 'Bearer token_rahasia_12345') {
@@ -42,11 +52,7 @@ if ($token_required && $auth_header !== 'Bearer token_rahasia_12345') {
         "token_mode" => "AKTIF (Wajib Header 'Authorization: Bearer token_rahasia_12345')",
         "tips" => "Kamu bisa matikan Token Auth di Web UI, atau panggil URL dengan parameter api.php?bypass=1"
     ];
-    add_log("API_URL (api.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 401, [
-        "auth_header" => $auth_header,
-        "req_raw" => $req_json,
-        "headers" => $headers
-    ], $response);
+    add_log("API_URL (api.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 401, $input_log_data, $response);
     echo json_encode($response);
     exit;
 }
@@ -62,12 +68,7 @@ $response = [
 ];
 
 http_response_code(201); // Set status 201 sesuai harapan di ABAP kamu
-add_log("API_URL (api.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 201, [
-    "auth_header" => $auth_header ?: "(Tanpa Token / Bypass)",
-    "req_json" => $data_dari_sap,
-    "req_raw" => $req_json,
-    "headers" => $headers
-], $response);
+add_log("API_URL (api.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 201, $input_log_data, $response);
 
 echo json_encode($response);
 ?>
