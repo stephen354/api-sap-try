@@ -13,6 +13,13 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/log_helper.php';
 
+// =====================================================================
+// 🔑 KONFIGURASI CLIENT ID & CLIENT SECRET (GANTI DI SINI JIKA PERLU)
+// Nilai ini harus cocok dengan TOKEN_CLIENTID dan TOKEN_SECRET di SAP!
+// =====================================================================
+$valid_id = "sap_client";       // Nilai untuk TOKEN_CLIENTID di SAP GUI
+$valid_secret = "sap_luar";     // Nilai untuk TOKEN_SECRET di SAP GUI
+
 $url_bypass = isset($_GET['bypass']) || isset($_GET['no_token']) || isset($_GET['bypass_token']);
 $token_required = is_token_required() && !$url_bypass;
 
@@ -39,10 +46,6 @@ if (empty($client_id) && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
         }
     }
 }
-
-// Misal ini ID dan Secret yang kita sepakati untuk tes:
-$valid_id = "sap_client";
-$valid_secret = "sap_luar";
 
 // 2. Tangkap grant_type (dikirim dari SET_FORM_FIELD di ABAP)
 $grant_type = isset($_POST['grant_type']) ? $_POST['grant_type'] : '';
@@ -74,7 +77,13 @@ $input_log_data = [
 // Cek kecocokan Auth (Jika Token Auth AKTIF)
 if ($token_required && ($client_id !== $valid_id || $client_secret !== $valid_secret)) {
     http_response_code(401);
-    $response = ["pesan" => "Gagal, Client ID atau Secret salah!", "token_mode" => "AKTIF (Wajib Auth)"];
+    $response = [
+        "status" => "Gagal",
+        "pesan" => "Gagal, Client ID atau Secret salah!",
+        "client_id_diterima" => !empty($client_id) ? $client_id : "(Kosong)",
+        "client_id_seharusnya" => $valid_id,
+        "token_mode" => "AKTIF (Wajib Auth)"
+    ];
     add_log("TOKEN_URL (token.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 401, $input_log_data, $response);
     echo json_encode($response);
     exit;
