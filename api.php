@@ -17,16 +17,22 @@ require_once __DIR__ . '/log_helper.php';
 $url_bypass = isset($_GET['bypass']) || isset($_GET['no_token']) || isset($_GET['bypass_token']);
 $token_required = is_token_required() && !$url_bypass;
 
-// 1. Ambil Header untuk ngecek Token
+// 1. Ambil Header untuk ngecek Token secara fleksibel (Case-insensitive)
 $headers = getallheaders_custom(); 
-$auth_header = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+$auth_header = '';
 
-// (Fallback jika server tidak pakai apache)
+foreach ($headers as $k => $v) {
+    if (strtolower($k) === 'authorization') {
+        $auth_header = trim($v);
+        break;
+    }
+}
+
 if (empty($auth_header) && isset($_SERVER['HTTP_AUTHORIZATION'])) {
-    $auth_header = $_SERVER['HTTP_AUTHORIZATION'];
+    $auth_header = trim($_SERVER['HTTP_AUTHORIZATION']);
 }
 if (empty($auth_header) && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-    $auth_header = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+    $auth_header = trim($_SERVER['REDIRECT_HTTP_AUTHORIZATION']);
 }
 
 // 3. Tangkap dan parse data input dari ABAP / Client
@@ -43,13 +49,23 @@ $input_log_data = [
     "query_params" => $_GET
 ];
 
-// 2. Cek apakah Token yang dibawa sama dengan Token yang kita buat (Jika Token Auth WAJIB)
-if ($token_required && $auth_header !== 'Bearer token_rahasia_12345') {
+// Cek kecocokan Token fleksibel (menerima 'Bearer token_rahasia_12345', 'bearer token_rahasia_12345', atau sekedar token string)
+$is_valid_token = false;
+if (!empty($auth_header)) {
+    if (strcasecmp($auth_header, 'Bearer token_rahasia_12345') === 0 || strpos($auth_header, 'token_rahasia_12345') !== false) {
+        $is_valid_token = true;
+    }
+}
+
+// 2. Cek apakah Token yang dibawa valid (Jika Token Auth WAJIB)
+if ($token_required && !$is_valid_token) {
     http_response_code(401);
     $response = [
         "status" => "Gagal",
         "pesan"  => "Akses Ditolak, Token tidak valid atau tidak dikirim!",
-        "token_mode" => "AKTIF (Wajib Header 'Authorization: Bearer token_rahasia_12345')",
+        "header_diterima" => !empty($auth_header) ? $auth_header : "(Kosong)",
+        "format_header_seharusnya" => "Authorization: Bearer token_rahasia_12345",
+        "kodingan_abap" => "lo_http_client->request->set_header_field( name = 'Authorization' value = 'Bearer token_rahasia_12345' ).",
         "tips" => "Kamu bisa matikan Token Auth di Web UI, atau panggil URL dengan parameter api.php?bypass=1"
     ];
     add_log("API_URL (api.php)", isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST', 401, $input_log_data, $response);
