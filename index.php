@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAP ABAP REST API Tester & Live Inspector</title>
+    <title>SAP ABAP REST API Tester & Inspector</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -97,13 +97,6 @@
             color: var(--text-secondary);
         }
 
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
         .server-badge {
             background: rgba(59, 130, 246, 0.1);
             border: 1px solid rgba(59, 130, 246, 0.2);
@@ -115,75 +108,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .token-toggle-card {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 16px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            user-select: none;
-            border: 1px solid transparent;
-        }
-
-        .token-toggle-card.enabled {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: rgba(16, 185, 129, 0.3);
-            color: var(--accent-emerald);
-        }
-
-        .token-toggle-card.disabled {
-            background: rgba(245, 158, 11, 0.15);
-            border-color: rgba(245, 158, 11, 0.3);
-            color: var(--accent-amber);
-        }
-
-        /* Toggle switch component */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            height: 18px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--accent-amber);
-            transition: .3s;
-            border-radius: 999px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 12px;
-            width: 12px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--accent-emerald);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(16px);
         }
 
         .status-dot {
@@ -332,7 +256,7 @@
 
         textarea.form-control {
             font-family: var(--font-mono);
-            min-height: 120px;
+            min-height: 110px;
             resize: vertical;
         }
 
@@ -389,30 +313,6 @@
         .btn-sm {
             padding: 6px 12px;
             font-size: 12px;
-        }
-
-        /* JSON presets */
-        .presets {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-        }
-
-        .preset-chip {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 4px 10px;
-            font-size: 11px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .preset-chip:hover {
-            border-color: var(--accent-cyan);
-            color: var(--accent-cyan);
         }
 
         /* Response Box */
@@ -472,7 +372,7 @@
             background: #060911;
             padding: 12px;
             border-radius: var(--radius-sm);
-            max-height: 240px;
+            max-height: 220px;
             overflow-y: auto;
         }
 
@@ -481,6 +381,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
+            margin-bottom: 20px;
         }
 
         .param-table th, .param-table td {
@@ -531,15 +432,6 @@
         }
 
         /* Log Inspector */
-        .log-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
         .log-list {
             display: flex;
             flex-direction: column;
@@ -633,6 +525,24 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        .endpoint-badge {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .endpoint-badge.no-header {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .endpoint-badge.with-header {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -643,23 +553,12 @@
             <div class="logo-icon">SAP</div>
             <div class="logo-text">
                 <h1>SAP ABAP REST API Tester</h1>
-                <p>Uji Coba Function Module ABAP, Token Authentication & Payload JSON</p>
+                <p>Pengujian Terpisah: Versi Tanpa Header vs Versi Wajib Header Token</p>
             </div>
         </div>
-        <div class="header-controls">
-            <!-- Token Auth Toggle Switch -->
-            <div id="token-toggle-btn" class="token-toggle-card enabled" onclick="toggleTokenAuth()">
-                <label class="switch">
-                    <input type="checkbox" id="token-auth-checkbox" checked onclick="event.stopPropagation(); toggleTokenAuth();">
-                    <span class="slider"></span>
-                </label>
-                <span id="token-toggle-label">Token Auth: WAJIB (AKTIF)</span>
-            </div>
-
-            <div class="server-badge">
-                <span class="status-dot"></span>
-                <span id="server-url">Laragon Server Active</span>
-            </div>
+        <div class="server-badge">
+            <span class="status-dot"></span>
+            <span id="server-url">Laragon Server Active</span>
         </div>
     </header>
 
@@ -667,105 +566,91 @@
     <div class="tabs-nav">
         <button class="tab-btn active" onclick="switchTab('tester')">⚡ API Tester</button>
         <button class="tab-btn" onclick="switchTab('inspector')">🛰️ Live Request Inspector (SAP Monitor)</button>
-        <button class="tab-btn" onclick="switchTab('abap')">📋 SAP ABAP Parameter Guide</button>
+        <button class="tab-btn" onclick="switchTab('abap')">📋 SAP ABAP Code & Parameter Guide</button>
     </div>
 
     <!-- TAB 1: API TESTER -->
     <div id="tab-tester" class="tab-content active">
         <div class="grid-2">
-            <!-- STEP 1: TOKEN GENERATOR -->
+            <!-- PANEL 1: TANPA HEADER -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
-                        <span class="step-num">1</span>
-                        <span>Uji Endpoint TOKEN_URL (token.php)</span>
+                        <span class="step-num" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald);">A</span>
+                        <span>API VERSI TANPA HEADER (api_no_header.php)</span>
                     </div>
+                    <span class="endpoint-badge no-header">Bypass Token</span>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Target URL (TOKEN_URL)</label>
-                    <input type="text" id="token_url" class="form-control" value="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>token.php">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Client ID (Basic Auth)</label>
-                        <input type="text" id="client_id" class="form-control" value="sap_client">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Client Secret (Basic Auth)</label>
-                        <input type="password" id="client_secret" class="form-control" value="sap_luar">
-                    </div>
+                    <label class="form-label">Target URL (Bisa langsung dipanggil tanpa token)</label>
+                    <input type="text" id="url_no_header" class="form-control" value="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_no_header.php">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">grant_type (POST Form Field)</label>
-                    <input type="text" id="grant_type" class="form-control" value="client_credentials">
+                    <label class="form-label">REQ_JSON Payload</label>
+                    <textarea id="json_no_header" class="form-control">{
+  "nama": "Budi",
+  "pesan": "Testing API Tanpa Header Token"
+}</textarea>
                 </div>
 
-                <button class="btn btn-block" onclick="generateToken()">
-                    🔑 Generate Access Token
+                <button class="btn btn-emerald btn-block" onclick="sendNoHeaderRequest()">
+                    🚀 Kirim REQ_JSON ke api_no_header.php
                 </button>
 
                 <div class="response-box">
                     <div class="response-header">
-                        <span id="token-status" class="status-badge idle">Status: Idle</span>
-                        <span id="token-time" class="time-taken">0 ms</span>
+                        <span id="no-header-status" class="status-badge idle">Status: Idle</span>
+                        <span id="no-header-time" class="time-taken">0 ms</span>
                     </div>
-                    <pre id="token-output">// Respon JSON token.php akan tampil di sini...</pre>
+                    <pre id="no-header-output">// Respon RES_JSON api_no_header.php akan tampil di sini...</pre>
                 </div>
             </div>
 
-            <!-- STEP 2: MAIN API TESTER -->
+            <!-- PANEL 2: WAJIB HEADER -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
-                        <span class="step-num">2</span>
-                        <span>Uji Endpoint Utama API (api.php)</span>
+                        <span class="step-num" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan);">B</span>
+                        <span>API VERSI WAJIB HEADER TOKEN (api_with_header.php)</span>
                     </div>
+                    <span class="endpoint-badge with-header">Wajib Token</span>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Target URL (URL Utama)</label>
-                    <input type="text" id="api_url" class="form-control" value="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api.php">
+                    <label class="form-label">Target URL (Wajib bawa Authorization Bearer)</label>
+                    <input type="text" id="url_with_header" class="form-control" value="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_with_header.php">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Authorization Header (Bearer Token)</label>
-                    <input type="text" id="bearer_token" class="form-control" value="Bearer token_rahasia_12345">
+                    <label class="form-label">Authorization Header Value</label>
+                    <input type="text" id="token_input_with_header" class="form-control" value="Bearer token_rahasia_12345">
                 </div>
 
                 <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label class="form-label" style="margin-bottom:0;">REQ_JSON (Payload)</label>
-                        <span style="font-size: 11px; color: var(--text-muted);">Contoh Cepat:</span>
-                    </div>
-                    <div class="presets">
-                        <span class="preset-chip" onclick="setPreset(1)">Preset 1 (Basic)</span>
-                        <span class="preset-chip" onclick="setPreset(2)">Preset 2 (Material)</span>
-                        <span class="preset-chip" onclick="setPreset(3)">Preset 3 (Purchase Order)</span>
-                    </div>
-                    <textarea id="req_json" class="form-control">{
+                    <label class="form-label">REQ_JSON Payload</label>
+                    <textarea id="json_with_header" class="form-control">{
   "nama": "Budi",
-  "pesan": "Testing dari SAP"
+  "pesan": "Testing API Wajib Header Token"
 }</textarea>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button class="btn btn-emerald btn-block" onclick="sendApiRequest(true)">
-                        🚀 Kirim dengan Token
+                    <button class="btn btn-block" onclick="sendWithHeaderRequest(true)">
+                        🔒 Kirim DENGAN Token
                     </button>
-                    <button class="btn btn-secondary btn-block" onclick="sendApiRequest(false)">
-                        🚫 Kirim TANPA Token
+                    <button class="btn btn-secondary btn-block" onclick="sendWithHeaderRequest(false)">
+                        ⚠️ Kirim TANPA Token
                     </button>
                 </div>
 
                 <div class="response-box">
                     <div class="response-header">
-                        <span id="api-status" class="status-badge idle">Status: Idle</span>
-                        <span id="api-time" class="time-taken">0 ms</span>
+                        <span id="with-header-status" class="status-badge idle">Status: Idle</span>
+                        <span id="with-header-time" class="time-taken">0 ms</span>
                     </div>
-                    <pre id="api-output">// Respon RES_JSON api.php akan tampil di sini...</pre>
+                    <pre id="with-header-output">// Respon RES_JSON api_with_header.php akan tampil di sini...</pre>
                 </div>
             </div>
         </div>
@@ -776,21 +661,11 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-title">
-                    <span>🛰️ Live Request Inspector (Setiap HTTP Request yang Masuk ke PHP)</span>
+                    <span>🛰️ Live Request Inspector (Memantau HTTP Request yang Masuk ke PHP)</span>
                 </div>
                 <div style="display:flex; gap: 8px;">
                     <button class="btn btn-secondary btn-sm" onclick="fetchLogs()">🔄 Refresh Manual</button>
                     <button class="btn btn-secondary btn-sm" onclick="clearLogs()">🗑️ Hapus Log</button>
-                </div>
-            </div>
-
-            <div class="log-toolbar">
-                <div style="font-size: 13px; color: var(--text-secondary);">
-                    Memantau kiriman HTTP dari <strong>SAP ABAP Function Module</strong> & <strong>Browser UI</strong> secara real-time.
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted);">
-                    <input type="checkbox" id="auto-refresh" checked onchange="toggleAutoRefresh(this)">
-                    <label for="auto-refresh">Auto Refresh (2 detik)</label>
                 </div>
             </div>
 
@@ -800,95 +675,124 @@
         </div>
     </div>
 
-    <!-- TAB 3: ABAP PARAMETER GUIDE -->
+    <!-- TAB 3: ABAP CODE & PARAMETER GUIDE -->
     <div id="tab-abap" class="tab-content">
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div class="card-title">
+                    <span style="color: var(--accent-emerald);">🟢 VERSI 1: Kodingan ABAP TANPA Header Token (`api_no_header.php`)</span>
+                </div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                Gunakan URL <code>api_no_header.php</code> untuk mengetes apakah koneksi HTTP dari SAP dan payload JSON bisa diterima PHP tanpa perlu otentikasi token sama sekali:
+            </p>
+            <table class="param-table">
+                <tr>
+                    <td class="param-name">URL</td>
+                    <td>
+                        <div class="param-val">
+                            <span id="abap_url_no_header"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_no_header.php</span>
+                            <button class="copy-btn" onclick="copyText('abap_url_no_header')">Copy</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <pre style="background: #060911; color: #a5f3fc; border: 1px solid var(--border);">
+" ====================================================
+" KODINGAN ABAP UNTUK VERSI TANPA TOKEN (Super Simpel)
+" ====================================================
+DATA: lo_http_client TYPE REF TO if_http_client,
+      lv_response    TYPE string.
+
+cl_http_client=>create_by_url(
+  EXPORTING url = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_no_header.php'
+  IMPORTING client = lo_http_client
+).
+
+lo_http_client->request->set_method( 'POST' ).
+lo_http_client->request->set_header_field( name = 'Content-Type' value = 'application/json' ).
+lo_http_client->request->set_cdata( '{"nama": "Budi", "pesan": "Tes Tanpa Header"}' ).
+
+lo_http_client->send( ).
+lo_http_client->receive( ).
+lv_response = lo_http_client->response->get_cdata( ).
+" Result: Respon status 201 Created dari api_no_header.php
+</pre>
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <div class="card-title">
-                    <span>📋 SAP ABAP Function Module Parameter Cheat Sheet</span>
+                    <span style="color: var(--accent-cyan);">🔒 VERSI 2: Kodingan ABAP DENGAN Header Token (`api_with_header.php`)</span>
                 </div>
             </div>
-            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
-                Saat kamu menjalankan <strong>Test / Execute (F8)</strong> pada Function Module di SAP GUI (SE37), isikan parameter sesuai tabel di bawah ini:
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                Gunakan URL <code>token.php</code> untuk ambil token, lalu kirimkan token tersebut ke <code>api_with_header.php</code> melalui header <code>Authorization: Bearer token_rahasia_12345</code>:
             </p>
-
             <table class="param-table">
-                <thead>
-                    <tr>
-                        <th>Parameter ABAP</th>
-                        <th>Nilai Input</th>
-                        <th>Keterangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="param-name">TOKEN_URL</td>
-                        <td>
-                            <div class="param-val">
-                                <span id="abap_token_url"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>token.php</span>
-                                <button class="copy-btn" onclick="copyText('abap_token_url')">Copy</button>
-                            </div>
-                        </td>
-                        <td>URL untuk generate token OAuth2</td>
-                    </tr>
-                    <tr>
-                        <td class="param-name">TOKEN_CLIENTID</td>
-                        <td>
-                            <div class="param-val">
-                                <span id="abap_client_id">sap_client</span>
-                                <button class="copy-btn" onclick="copyText('abap_client_id')">Copy</button>
-                            </div>
-                        </td>
-                        <td>Client ID otentikasi Basic Auth</td>
-                    </tr>
-                    <tr>
-                        <td class="param-name">TOKEN_SECRET</td>
-                        <td>
-                            <div class="param-val">
-                                <span id="abap_secret">sap_luar</span>
-                                <button class="copy-btn" onclick="copyText('abap_secret')">Copy</button>
-                            </div>
-                        </td>
-                        <td>Client Secret otentikasi Basic Auth</td>
-                    </tr>
-                    <tr>
-                        <td class="param-name">URL</td>
-                        <td>
-                            <div class="param-val">
-                                <span id="abap_api_url"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api.php</span>
-                                <button class="copy-btn" onclick="copyText('abap_api_url')">Copy</button>
-                            </div>
-                        </td>
-                        <td>URL Endpoint Utama API</td>
-                    </tr>
-                    <tr>
-                        <td class="param-name">REQ_JSON</td>
-                        <td>
-                            <div class="param-val">
-                                <span id="abap_req_json">{"nama": "Budi", "pesan": "Testing dari SAP"}</span>
-                                <button class="copy-btn" onclick="copyText('abap_req_json')">Copy</button>
-                            </div>
-                        </td>
-                        <td>Payload JSON yang dikirimkan ke SAP</td>
-                    </tr>
-                    <tr>
-                        <td class="param-name">TOKEN_ONLY</td>
-                        <td>
-                            <div class="param-val">
-                                <span>(Kosongkan / De-select 'X')</span>
-                            </div>
-                        </td>
-                        <td>Biarkan kosong agar ABAP melanjut ke API utama</td>
-                    </tr>
-                </tbody>
+                <tr>
+                    <td class="param-name">TOKEN_URL</td>
+                    <td>
+                        <div class="param-val">
+                            <span id="abap_token_url"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>token.php</span>
+                            <button class="copy-btn" onclick="copyText('abap_token_url')">Copy</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="param-name">URL (Utama)</td>
+                    <td>
+                        <div class="param-val">
+                            <span id="abap_url_with_header"><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_with_header.php</span>
+                            <button class="copy-btn" onclick="copyText('abap_url_with_header')">Copy</button>
+                        </div>
+                    </td>
+                </tr>
             </table>
+            <pre style="background: #060911; color: #a5f3fc; border: 1px solid var(--border);">
+" ====================================================
+" KODINGAN ABAP UNTUK VERSI DENGAN HEADER TOKEN
+" ====================================================
+DATA: lo_client   TYPE REF TO if_http_client,
+      lv_token    TYPE string,
+      lv_response TYPE string.
 
-            <div style="margin-top: 24px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); padding: 16px; border-radius: var(--radius-md);">
-                <h4 style="color: var(--accent-cyan); font-size: 14px; margin-bottom: 8px;">💡 Mode Bypass Token Auth untuk Testing ABAP:</h4>
-                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
-                    Kamu bisa mematikan validasi token dengan mengklik tombol toggle <strong>"Token Auth: WAJIB"</strong> di pojok kanan atas menjadi <strong>"NONAKTIF (BYPASS)"</strong>, atau menambahkan parameter <code>?bypass=1</code> pada URL di SAP (misal: <code>http://localhost/.../api.php?bypass=1</code>).
-                </p>
-            </div>
+" 1. Minta Token ke token.php
+cl_http_client=>create_by_url(
+  EXPORTING url = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>token.php'
+  IMPORTING client = lo_client
+).
+lo_client->request->set_method( 'POST' ).
+lo_client->request->set_authorization( auth_type = if_http_request=>co_request_has_authorization username = 'sap_client' password = 'sap_luar' ).
+lo_client->request->set_header_field( name = 'Content-Type' value = 'application/x-www-form-urlencoded' ).
+lo_client->request->set_form_field( name = 'grant_type' value = 'client_credentials' ).
+lo_client->send( ).
+lo_client->receive( ).
+
+" (Dapatkan token: token_rahasia_12345)
+lv_token = 'token_rahasia_12345'.
+
+" 2. Kirim ke api_with_header.php DENGAN HEADER Authorization Bearer
+cl_http_client=>create_by_url(
+  EXPORTING url = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?'); ?>api_with_header.php'
+  IMPORTING client = lo_client
+).
+lo_client->request->set_method( 'POST' ).
+
+" ⚠️ INI CARA SET HEADER AUTHORIZATION BEARER DI SAP ABAP:
+lo_client->request->set_header_field(
+  EXPORTING
+    name  = 'Authorization'
+    value = 'Bearer ' && lv_token
+).
+
+lo_client->request->set_header_field( name = 'Content-Type' value = 'application/json' ).
+lo_client->request->set_cdata( '{"nama": "Budi", "pesan": "Tes Wajib Token"}' ).
+
+lo_client->send( ).
+lo_client->receive( ).
+lv_response = lo_client->response->get_cdata( ).
+</pre>
         </div>
     </div>
 </div>
@@ -896,7 +800,6 @@
 <div id="toast" class="toast">Berhasil disalin ke clipboard!</div>
 
 <script>
-    // Tab switching logic
     function switchTab(tabId) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -909,61 +812,6 @@
         }
     }
 
-    // Token Auth Toggle Logic
-    let isTokenAuthRequired = true;
-
-    async function loadConfig() {
-        try {
-            const res = await fetch('config_api.php?t=' + Date.now(), { cache: 'no-store' });
-            const config = await res.json();
-            isTokenAuthRequired = config.require_token;
-            updateToggleUI();
-        } catch (e) {
-            console.error('Gagal membaca config token:', e);
-        }
-    }
-
-    async function toggleTokenAuth() {
-        try {
-            const newStatus = !isTokenAuthRequired;
-            const res = await fetch('config_api.php?action=toggle&status=' + newStatus + '&t=' + Date.now(), { method: 'POST', cache: 'no-store' });
-            const config = await res.json();
-            isTokenAuthRequired = config.require_token;
-            updateToggleUI();
-            showToast(isTokenAuthRequired ? 'Mode Token Auth: WAJIB (AKTIF)' : 'Mode Token Auth: NONAKTIF / BYPASS!');
-        } catch (e) {
-            alert('Gagal mengubah mode token: ' + e.message);
-        }
-    }
-
-    function updateToggleUI() {
-        const toggleCard = document.getElementById('token-toggle-btn');
-        const checkbox = document.getElementById('token-auth-checkbox');
-        const label = document.getElementById('token-toggle-label');
-
-        checkbox.checked = isTokenAuthRequired;
-
-        if (isTokenAuthRequired) {
-            toggleCard.className = 'token-toggle-card enabled';
-            label.innerText = 'Token Auth: WAJIB (AKTIF)';
-        } else {
-            toggleCard.className = 'token-toggle-card disabled';
-            label.innerText = 'Token Auth: NONAKTIF (BYPASS)';
-        }
-    }
-
-    // JSON Presets
-    const presets = {
-        1: { "nama": "Budi", "pesan": "Testing dari SAP" },
-        2: { "material_code": "MAT-1002", "qty": 50, "plant": "1000", "timestamp": new Date().toISOString().split('T')[0] },
-        3: { "vendor_id": "VEND_99", "action": "CREATE_PO", "items": [{ "id": 1, "desc": "Laptop", "price": 15000000 }] }
-    };
-
-    function setPreset(num) {
-        document.getElementById('req_json').value = JSON.stringify(presets[num], null, 2);
-    }
-
-    // Toast Popup
     function showToast(msg) {
         const toast = document.getElementById('toast');
         toast.innerText = msg;
@@ -978,87 +826,50 @@
         });
     }
 
-    // Step 1: Generate Token
-    async function generateToken() {
-        const url = document.getElementById('token_url').value;
-        const clientId = document.getElementById('client_id').value;
-        const clientSecret = document.getElementById('client_secret').value;
-        const grantType = document.getElementById('grant_type').value;
+    // Tester Versi Tanpa Header
+    async function sendNoHeaderRequest() {
+        const url = document.getElementById('url_no_header').value;
+        const jsonText = document.getElementById('json_no_header').value;
+        const outputEl = document.getElementById('no-header-output');
+        const statusEl = document.getElementById('no-header-status');
+        const timeEl = document.getElementById('no-header-time');
 
-        const outputEl = document.getElementById('token-output');
-        const statusEl = document.getElementById('token-status');
-        const timeEl = document.getElementById('token-time');
-
-        outputEl.innerText = "Mengirim permintaan ke token.php...";
-        statusEl.className = 'status-badge idle';
-        statusEl.innerText = 'Status: Sending...';
-
+        outputEl.innerText = "Mengirim ke api_no_header.php...";
         const startTime = performance.now();
 
         try {
-            const authHeader = 'Basic ' + btoa(clientId + ':' + clientSecret);
-            const formData = new URLSearchParams();
-            formData.append('grant_type', grantType);
-
             const res = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Authorization': authHeader,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: jsonText
             });
-
             const duration = Math.round(performance.now() - startTime);
             timeEl.innerText = duration + ' ms';
-
             const data = await res.json();
             outputEl.innerText = JSON.stringify(data, null, 2);
-
-            statusEl.innerText = `HTTP ${res.status} ${res.ok ? 'OK' : 'Error'}`;
-            statusEl.className = `status-badge s${res.status}`;
-
-            if (res.ok && data.access_token) {
-                document.getElementById('bearer_token').value = `${data.token_type || 'Bearer'} ${data.access_token}`;
-                showToast('Token Berhasil Dibuat & Otomatis Disimpan!');
-            }
+            statusEl.innerText = `HTTP ${res.status} Created`;
+            statusEl.className = 'status-badge s201';
+            showToast('Berhasil dikirim ke api_no_header.php!');
+            fetchLogs();
         } catch (err) {
-            const duration = Math.round(performance.now() - startTime);
-            timeEl.innerText = duration + ' ms';
-            statusEl.innerText = 'HTTP Connection Failed';
-            statusEl.className = 'status-badge s500';
-            outputEl.innerText = '// Error koneksi: ' + err.message + '\n\nPastikan Laragon/XAMPP aktif dan URL benar.';
+            outputEl.innerText = '// Error: ' + err.message;
         }
     }
 
-    // Step 2: Send Main API Request
-    async function sendApiRequest(withToken = true) {
-        const url = document.getElementById('api_url').value;
-        const bearerToken = document.getElementById('bearer_token').value;
-        const jsonText = document.getElementById('req_json').value;
+    // Tester Versi Wajib Header
+    async function sendWithHeaderRequest(withToken = true) {
+        const url = document.getElementById('url_with_header').value;
+        const bearerToken = document.getElementById('token_input_with_header').value;
+        const jsonText = document.getElementById('json_with_header').value;
+        const outputEl = document.getElementById('with-header-output');
+        const statusEl = document.getElementById('with-header-status');
+        const timeEl = document.getElementById('with-header-time');
 
-        const outputEl = document.getElementById('api-output');
-        const statusEl = document.getElementById('api-status');
-        const timeEl = document.getElementById('api-time');
-
-        // Validate JSON
-        try {
-            JSON.parse(jsonText);
-        } catch (e) {
-            alert('Format REQ_JSON tidak valid: ' + e.message);
-            return;
-        }
-
-        outputEl.innerText = "Mengirim REQ_JSON ke api.php...";
-        statusEl.className = 'status-badge idle';
-        statusEl.innerText = 'Status: Sending...';
-
+        outputEl.innerText = "Mengirim ke api_with_header.php...";
         const startTime = performance.now();
 
         try {
-            const headersObj = {
-                'Content-Type': 'application/json'
-            };
+            const headersObj = { 'Content-Type': 'application/json' };
             if (withToken && bearerToken.trim() !== '') {
                 headersObj['Authorization'] = bearerToken;
             }
@@ -1068,40 +879,21 @@
                 headers: headersObj,
                 body: jsonText
             });
-
             const duration = Math.round(performance.now() - startTime);
             timeEl.innerText = duration + ' ms';
-
             const data = await res.json();
             outputEl.innerText = JSON.stringify(data, null, 2);
-
-            statusEl.innerText = `HTTP ${res.status} ${res.status === 201 ? 'Created' : (res.ok ? 'OK' : 'Error')}`;
+            statusEl.innerText = `HTTP ${res.status} ${res.ok ? 'Created' : 'Unauthorized'}`;
             statusEl.className = `status-badge s${res.status}`;
-
-            if (res.ok) {
-                showToast(withToken ? 'REQ_JSON Berhasil Diterima oleh api.php!' : 'REQ_JSON Dikirim TANPA Token!');
-            }
+            showToast(res.ok ? 'Berhasil dikirim DENGAN Token!' : 'Gagal (401 Unauthorized - Tanpa Token)!');
             fetchLogs();
         } catch (err) {
-            const duration = Math.round(performance.now() - startTime);
-            timeEl.innerText = duration + ' ms';
-            statusEl.innerText = 'HTTP Connection Failed';
-            statusEl.className = 'status-badge s500';
-            outputEl.innerText = '// Error koneksi: ' + err.message;
+            outputEl.innerText = '// Error: ' + err.message;
         }
     }
 
     // Inspector Logs Poller
     let logTimer = null;
-
-    function toggleAutoRefresh(cb) {
-        if (cb.checked) {
-            startLogPolling();
-        } else {
-            clearInterval(logTimer);
-        }
-    }
-
     function startLogPolling() {
         clearInterval(logTimer);
         logTimer = setInterval(() => {
@@ -1124,11 +916,7 @@
     async function clearLogs() {
         if (confirm('Hapus semua catatan log request?')) {
             try {
-                const res = await fetch('logs_api.php?action=clear&t=' + Date.now(), {
-                    method: 'POST',
-                    cache: 'no-store'
-                });
-                const data = await res.json();
+                await fetch('logs_api.php?action=clear&t=' + Date.now(), { method: 'POST', cache: 'no-store' });
                 renderLogs([]);
                 showToast('Log berhasil dibersihkan!');
             } catch (err) {
@@ -1146,10 +934,6 @@
 
         container.innerHTML = logs.map(item => {
             const statusClass = `s${item.status}`;
-            const tokenBadge = item.token_required 
-                ? `<span style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(16, 185, 129, 0.15); color:var(--accent-emerald);">Token: Wajib</span>`
-                : `<span style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(245, 158, 11, 0.15); color:var(--accent-amber);">Token: Bypass</span>`;
-
             return `
                 <div class="log-item">
                     <div class="log-header">
@@ -1157,16 +941,13 @@
                             <span class="method-tag">${item.method}</span>
                             <span>${item.endpoint}</span>
                             <span class="status-badge ${statusClass}">HTTP ${item.status}</span>
-                            ${tokenBadge}
                         </div>
                         <span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">${item.time}</span>
                     </div>
-
                     <div class="log-meta">
                         <span>🌐 Client IP: ${item.remote_ip}</span>
                         <span>🖥️ User-Agent: ${item.user_agent}</span>
                     </div>
-
                     <div class="log-details">
                         <div>
                             <strong style="color: var(--accent-cyan); display:block; margin-bottom:4px;">📥 INPUT DATA (dari ABAP/Browser):</strong>
@@ -1182,8 +963,6 @@
         }).join('');
     }
 
-    // Init
-    loadConfig();
     startLogPolling();
 </script>
 
